@@ -20,7 +20,7 @@ var ignoreAutoPlay = false;
 // disable stop button while not recording
 
 stop.disabled = true;
-upload.disabled = true;
+upload.disabled = false;
 
 // visualiser setup - create web audio api context and canvas
 
@@ -45,21 +45,23 @@ if (navigator.getUserMedia) {
       var progress = document.querySelector('.progress-display');
       progress.innerText = "3";
       document.querySelector('.info-display').innerText = "";
+     
       setTimeout(function() {
-	  progress.innerText = "2";
-	  setTimeout(function() {
-	      progress.innerText = "1";
+	      progress.innerText = "2";
 	      setTimeout(function() {
-		  progress.innerText = "";
-		  startRecording();
-	      }, 1000);
-	  }, 1000);
-      }, 1000);
+	        progress.innerText = "1";
+	          setTimeout(function() {
+		          progress.innerText = "";
+		          startRecording();
+	           }, 100);
+	        }, 100);
+      }, 100);
       stop.disabled = false;
       record.disabled = true;
     }
 
     stop.onclick = function() {
+      console.log("is this running? \n \n")
       if (mediaRecorder.state == 'inactive') {
         // The user has already pressed stop, so don't set up another word.
         ignoreAutoPlay = true;
@@ -72,6 +74,7 @@ if (navigator.getUserMedia) {
       record.style.color = ""; 
       stop.disabled = true;
       record.disabled = false;
+      
     }
 
     upload.onclick = function() {
@@ -303,18 +306,21 @@ function startRecording() {
     ignoreAutoPlay = false;
     return;
   }
+  /*
   var word = getNextWord();
   if (word === null) {
     promptToSave();
     return;
   }
+  
   updateProgress();
   document.querySelector('.info-display').innerText = word;
+  */
   mediaRecorder.start();
   console.log(mediaRecorder.state);
   console.log("recorder started");
   record.style.background = "red";
-  setTimeout(endRecording, 1500);
+  setTimeout(endRecording, 5000);
 }
 
 function endRecording() {
@@ -362,7 +368,7 @@ function uploadNextClip() {
     if (this.status == 200) {
       var blob = this.response;
       var ajaxRequest = new XMLHttpRequest();
-      var uploadUrl = '/upload?word=' + word + '&_csrf_token=' + csrf_token;
+      var uploadUrl = '/upload?word=' + word //+ '&_csrf_token=' + csrf_token;
       ajaxRequest.open('POST', uploadUrl, true);
       ajaxRequest.setRequestHeader('Content-Type', 'application/json');    
       ajaxRequest.onreadystatechange = function() {
