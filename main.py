@@ -1,9 +1,7 @@
-from flask import Flask
+from flask import Flask, redirect, url_for, request, render_template
 from flask import abort
 from flask import make_response
 from flask import redirect
-from flask import render_template
-from flask import request
 from flask import session
 from werkzeug.utils import secure_filename
 from werkzeug.debug import DebuggedApplication
@@ -17,19 +15,16 @@ import uuid
 
 app = Flask(__name__)
 app.debug = True
-# Configure this environment variable via app.yaml
-#CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
-# [end config]
 
 @app.route("/")
 def welcome():
     session_id = request.cookies.get('session_id')
+    lex_response = request.cookies.get('message')
+    if(not lex_response):
+        lex_response = "Press record to start"
+    #lex_response.replace("\054","\n")
     if session_id:
-        all_done = request.cookies.get('all_done')
-        if all_done:
-            return render_template("thanks.html")
-        else:
-            return render_template("record.html")
+        return render_template("record.html", text=lex_response)
     else:
         return render_template("welcome.html")
 
@@ -41,7 +36,7 @@ def legal():
 def start():
     response = make_response(redirect('/'))
     session_id = uuid.uuid4().hex
-    #response.set_cookie('session_id', session_id)
+    response.set_cookie('session_id', session_id)
     return response
 
 @app.route('/upload', methods=['POST'])
@@ -57,35 +52,26 @@ def upload():
     # will be saved to the local file system.
     with open(secure_name, 'wb') as f:
         f.write(audio_data)
-    #Create a Cloud Storage client.
     
-   # result_success = subprocess.check_output("./scripttest.sh", shell=True)
+    #polly = boto3.client('polly')
+    #response = polly.synthesize_speech(OutputFormat='ogg_vorbis',SampleRate='16000',Text='I would like to order flowers',
+     #   VoiceId='Geraint')
+    #print(response)
+    #with open(pollyfile.obb, 'wb') as f:
+     #   f.write(response['AudioStream'])
     
-    #requests.post("http://httpbin.org/post", data=payload)
+    client = boto3.client('lex-runtime')
+    message = client.post_content(botName='sayhi', botAlias='prod', userId='samboo',
+       contentType='audio/x-cbr-opus-with-preamble; preamble-size=0; bit-rate=256000; frame-size-milliseconds=4', accept='text/plain; charset=utf-8', inputStream=secure_name)['message']
+    #message = client.post_content(botName='OrderFlowersBot', botAlias='prod', userId='samboo',
+     #    contentType='audio/x-l16; sample-rate=16000; channel-count=1', accept='text/plain; charset=utf-8', inputStream=response)['AudioStream']
+   
+    print(message)
+    resp = make_response(render_template('record.html'))
+    resp.set_cookie('message', message)
+    return resp
+    #return message
     
-    lexurl = "https://runtime.lex.eu-west-1.amazonaws.com/bot/OrderFlowersBot/alias/prod/user/sam/text"
-    #https://eu-west-1.console.aws.amazon.com/lex/home?region=eu-west-1#bot-editor:bot=OrderFlowersBot
-    payload = {'Content-Type': 'text/plain; charset=utf-8', 'Accept': 'charset=utf-8'}
-    print(requests.post(lexurl,payload))
-    
-
-    
-    """
-    s3 = boto3.client('s3')
-    
-    filename = 'willbreak.mp3'
-    bucket_name = 'sams-audiofile'
-    s3.upload_file(filename, bucket_name, filename)
-    
-    
-    gcs = storage.Client()
-    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-    blob = bucket.blob(secure_name)
-    blob.upload_from_string(audio_data, content_type='audio/ogg')
-    """
-    
-    return "thanks"
-
 """
 # CSRF protection, see http://flask.pocoo.org/snippets/3/.
 @app.before_request

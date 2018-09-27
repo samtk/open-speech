@@ -36,7 +36,12 @@ if (navigator.getUserMedia) {
   var chunks = [];
 
   var onSuccess = function(stream) {
-    mediaRecorder = new MediaRecorder(stream);
+    var options = {
+      audioBitsPerSecond : 256000,
+      //videoBitsPerSecond : 2500000,
+      mimeType : 'audio/webm;codecs=opus'
+    }
+    mediaRecorder = new MediaRecorder(stream,options);
     mediaStreamSource = audioCtx.createMediaStreamSource(stream);
     record.onclick = function() {
       visualize(stream);
