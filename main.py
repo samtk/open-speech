@@ -62,7 +62,7 @@ def upload():
     
     client = boto3.client('lex-runtime')
     message = client.post_content(botName='sayhi', botAlias='prod', userId='samboo',
-       contentType='audio/x-cbr-opus-with-preamble; preamble-size=0; bit-rate=256000; frame-size-milliseconds=4', accept='text/plain; charset=utf-8', inputStream=secure_name)['message']
+       contentType='audio/x-l16; sample-rate=16000', accept='text/plain; charset=utf-8', inputStream=secure_name)['message']
     #message = client.post_content(botName='OrderFlowersBot', botAlias='prod', userId='samboo',
      #    contentType='audio/x-l16; sample-rate=16000; channel-count=1', accept='text/plain; charset=utf-8', inputStream=response)['AudioStream']
    
