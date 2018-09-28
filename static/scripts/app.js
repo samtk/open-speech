@@ -32,15 +32,21 @@ var canvasCtx = canvas.getContext("2d");
 if (navigator.getUserMedia) {
   console.log('getUserMedia supported.');
 
-  var constraints = { audio: true };
+  var constraints = { audio: true, sampleSize: 16, channelcount:2 };
   var chunks = [];
 
   var onSuccess = function(stream) {
     var options = {
-      audioBitsPerSecond : 256000,
+      //audioBitsPerSecond : 256000,
       //videoBitsPerSecond : 2500000,
-      mimeType : 'audio/webm;codecs=opus'
+      //mimeType: 'audio/wav'
+      desiredSampRate: 16000,
+      mimeType: 'audio/webm;codecs=pcm'
+      //mimeType : 'audio/webm;codecs=opus'
     }
+    
+    //MediaTrackConstraints.applyConstraints()
+    
     mediaRecorder = new MediaRecorder(stream,options);
     mediaStreamSource = audioCtx.createMediaStreamSource(stream);
     record.onclick = function() {
@@ -108,7 +114,7 @@ if (navigator.getUserMedia) {
       soundClips.appendChild(clipContainer);
 
       audio.controls = true;
-      var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+      var blob = new Blob(chunks, { 'type' : 'audio/wav; codecs=opus' });
       chunks = [];
       var audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;

@@ -46,7 +46,7 @@ def upload():
         make_response('No session', 400)
     word = request.args.get('word')
     audio_data = request.data
-    filename = word + '_' + session_id + '_' + uuid.uuid4().hex + '.ogg'
+    filename = word + '_' + session_id + '_' + uuid.uuid4().hex + '.wav'
     secure_name = secure_filename(filename)
     # Left in for debugging purposes. If you comment this back in, the data
     # will be saved to the local file system.
@@ -62,7 +62,7 @@ def upload():
     
     client = boto3.client('lex-runtime')
     message = client.post_content(botName='sayhi', botAlias='prod', userId='samboo',
-       contentType='audio/x-cbr-opus-with-preamble; preamble-size=0; bit-rate=256000; frame-size-milliseconds=4', accept='text/plain; charset=utf-8', inputStream=secure_name)['message']
+       contentType='audio/l16; rate=16000; channels=1', accept='text/plain; charset=utf-8', inputStream=secure_name)['message']
     #message = client.post_content(botName='OrderFlowersBot', botAlias='prod', userId='samboo',
      #    contentType='audio/x-l16; sample-rate=16000; channel-count=1', accept='text/plain; charset=utf-8', inputStream=response)['AudioStream']
    
