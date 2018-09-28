@@ -29,10 +29,11 @@ var canvasCtx = canvas.getContext("2d");
 
 //main block for doing the audio recording
 
+
 if (navigator.getUserMedia) {
   console.log('getUserMedia supported.');
 
-  var constraints = { audio: true, sampleSize: 16, channelcount:2 };
+  var constraints = { audio: true ,sampleRate: 16000};
   var chunks = [];
 
   var onSuccess = function(stream) {
@@ -40,12 +41,14 @@ if (navigator.getUserMedia) {
       //audioBitsPerSecond : 256000,
       //videoBitsPerSecond : 2500000,
       //mimeType: 'audio/wav'
-      desiredSampleRate: 16000,
-      mimeType: 'audio/webm;codecs=pcm'
+      //desiredSampleRate: 16000,
+      mimeType: 'audio/webm;codecs=opus'
       //mimeType : 'audio/webm;codecs=opus'
     }
     
     //MediaTrackConstraints.applyConstraints()
+    //const track = stream.getVideoTracks()[0];
+    //track.applyConstraints(constraints)
     
     mediaRecorder = new MediaRecorder(stream,options);
     mediaStreamSource = audioCtx.createMediaStreamSource(stream);
@@ -114,8 +117,17 @@ if (navigator.getUserMedia) {
       soundClips.appendChild(clipContainer);
 
       audio.controls = true;
-      var blob = new Blob(chunks, { 'type' : 'audio/wav; codecs=opus' });
+      var blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
       chunks = [];
+      
+      var arrayBuffer;
+      var fileReader = new FileReader();
+      fileReader.onload = function(event) {
+          arrayBuffer = event.target.result;
+      };
+      fileReader.readAsArrayBuffer(blob);
+            
+            
       var audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
       console.log("recorder stopped");
