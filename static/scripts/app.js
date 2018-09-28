@@ -116,7 +116,7 @@ if (navigator.getUserMedia) {
       var mergedBuffers = mergeBuffers(recBuffer, recLength);
       var downsampledBuffer = downsampleBuffer(mergedBuffers, 16000);
       var encodedWav = encodeWAV(downsampledBuffer);  
-      var blob = new Blob([encodedWav], { type: 'application/octet-stream' });
+      var blob = new Blob([encodedWav], { type: 'audio/mpeg' });
       //var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
       chunks = [];
       recLength = 0;
