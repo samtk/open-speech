@@ -16,7 +16,9 @@ var canvas = document.querySelector('.visualizer');
 var mediaRecorder = null;
 var mediaStreamSource = null;
 var ignoreAutoPlay = false;
-
+var recLength = 0
+var recBuffer = []
+var recordSampleRate;
 // disable stop button while not recording
 
 stop.disabled = true;
@@ -111,13 +113,14 @@ if (navigator.getUserMedia) {
       audio.controls = true;
       
       
-      var mergedBuffers = mergeBuffers(chunks, recLength);
+      var mergedBuffers = mergeBuffers(recBuffer, recLength);
       var downsampledBuffer = downsampleBuffer(mergedBuffers, 16000);
       var encodedWav = encodeWAV(downsampledBuffer);  
       var blob = new Blob([encodedWav], { type: 'application/octet-stream' });
-      
       //var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
       chunks = [];
+      recLength = 0;
+      recBuffer = [];
       var audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
       console.log("recorder stopped");
@@ -130,8 +133,11 @@ if (navigator.getUserMedia) {
     }
 
     mediaRecorder.ondataavailable = function(e) {
+      //exportBuffer(e.sampleRate)
       chunks.push(e.data);
-      recLength += e.data.length;
+      recLength += e.data.buffer[0].length;
+      recBuffer.push(e.data.buffer[0]);
+      
     }
   }
 
@@ -512,7 +518,7 @@ function exportBuffer() {
       var encodedWav = encodeWAV(downsampledBuffer);                                 
       // Create Blob
       var audioBlob = new Blob([encodedWav], { type: 'application/octet-stream' });
-      postMessage(audioBlob);
+      return audioBlob;
     }
 
 
