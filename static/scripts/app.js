@@ -40,7 +40,7 @@ if (navigator.getUserMedia) {
       //audioBitsPerSecond : 256000,
       //videoBitsPerSecond : 2500000,
       //mimeType: 'audio/wav'
-      desiredSampRate: 16000,
+      desiredSampleRate: 16000,
       mimeType: 'audio/webm;codecs=pcm'
       //mimeType : 'audio/webm;codecs=opus'
     }
